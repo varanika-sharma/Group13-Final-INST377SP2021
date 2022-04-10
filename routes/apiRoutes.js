@@ -1,6 +1,10 @@
+/* eslint-disable radix */
 /* eslint-disable no-console */
 import express from 'express';
 import sequelize from 'sequelize';
+
+import peopleRoutes from './PeopleRoutes.js';
+import ratingRoutes from './RatingsRoutes.js';
 
 import db from '../database/initializeDB.js';
 
@@ -8,6 +12,51 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
   res.send('Welcome to the UMD Dining API!');
+});
+
+///  People's Routes ////
+router.use('/People.js', peopleRoutes);
+/// People Routes
+router.route('/People.js')
+  .get(async (req, res) => {
+    try {
+      const test = req.body.first_name;
+      const result = await db.people.create({
+        person_id: 1234,
+        first_name: 'Steve',
+        last_name: 'Johnson'
+      });
+      res.send('Reached here');
+    } catch (err) {
+      console.log(err);
+      res.send({message: 'Did not reach here'});
+    }
+  });
+
+///  Rating's Routes ////
+router.route('/ratings')
+  .get(async (req, res) => {
+    try {
+      const rating = await DataView.Ratings.findAll();
+      const reply = rating.length > 0 ? { data: rating} : { message: 'No results'};
+      res.json(reply);
+    } catch (err) {
+      console.error(err);
+      res.error('Error in Server');
+    }
+  });
+router.route('/ratings/:rating_id').get(async(req, res) => {
+  try {
+    const rating = await db.Ratings.findAll({
+      where: {
+        rating_id: req.params.rating_id
+      }
+    });
+    res.json(rating);
+  } catch (err) {
+    console.log(err);
+    res.error('Error in server');
+  }
 });
 
 /// /////////////////////////////////
@@ -269,5 +318,4 @@ router.get('/custom', async (req, res) => {
     res.error('Server error');
   }
 });
-
 export default router;
